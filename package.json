@@ -1,0 +1,27 @@
+{
+  "name": "@wipcomputer/universal-installer",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Universal installer for WIP.computer repos. Detects and installs all available interfaces: CLI, OpenClaw plugin, Claude Code hook, MCP server, skill.",
+  "main": "install.mjs",
+  "bin": {
+    "wip-install": "./install.mjs"
+  },
+  "scripts": {
+    "test": "node install.mjs --help"
+  },
+  "keywords": [
+    "installer",
+    "claude-code",
+    "openclaw",
+    "mcp",
+    "cli",
+    "universal"
+  ],
+  "author": "Parker Todd Brooks",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wipcomputer/wip-universal-installer.git"
+  }
+}
