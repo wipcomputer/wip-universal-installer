@@ -83,6 +83,20 @@ Every WIP.computer repo follows a multi-interface pattern. Each interface is a "
 
 Not every repo has all six. The installer only installs what exists.
 
+## Supported Tools
+
+Works with any AI agent or coding tool that can run shell commands.
+
+| Tool | How it works |
+|------|-------------|
+| Claude Code | Hooks into `~/.claude/settings.json` (PreToolUse, Stop events) |
+| OpenAI Codex CLI | CLI tools available via bash, skills via AGENTS.md |
+| Cursor | CLI tools available via terminal, config via `.cursorrules` |
+| Windsurf | CLI tools available via terminal, config via `.windsurfrules` |
+| OpenClaw | Plugins to `~/.openclaw/extensions/`, skills via SKILL.md |
+| Any MCP client | MCP server config printed for `.mcp.json` |
+| Any other agent | CLI works everywhere. If it has a shell, it works. |
+
 ## Supported Repos
 
 Any repo that follows WIP.computer conventions works. Currently:
