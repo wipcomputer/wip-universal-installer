@@ -1,12 +1,12 @@
 ---
 name: wip-universal-installer
 version: 2.0.0
-description: Reference installer for agent-native software. Detects and installs all doors from any repo.
+description: Reference installer for agent-native software. Detects and installs all interfaces from any repo.
 homepage: https://github.com/wipcomputer/wip-universal-installer
 metadata:
   category: dev-tools
   capabilities:
-    - detect-doors
+    - detect-interfaces
     - install-cli
     - install-mcp
     - install-openclaw-plugin
@@ -14,7 +14,7 @@ metadata:
   dependencies: []
   interface: CLI
 openclaw:
-  emoji: "🚪"
+  emoji: "🔌"
   install:
     env: []
 author:
@@ -23,24 +23,24 @@ author:
 
 # wip-universal-installer
 
-Reference installer for agent-native software. Scans a repo, detects which "doors" (interfaces) it exposes, and installs them all.
+Reference installer for agent-native software. Scans a repo, detects which interfaces it exposes, and installs them all.
 
 ## When to Use This Skill
 
 **Use wip-install for:**
-- Installing any repo that follows the Six Doors pattern
+- Installing any repo that follows the Universal Interface pattern
 - Detecting what interfaces a repo provides
 - Setting up CLI tools, MCP servers, OpenClaw plugins, and Claude Code hooks in one command
 
 **Use detect.mjs for:**
-- Programmatically detecting doors in a repo
+- Programmatically detecting interfaces in a repo
 - Building custom installers or CI pipelines
 - Validating that a repo follows the spec
 
 ### Do NOT Use For
 
 - Installing standard npm packages (use npm directly)
-- Repos that don't follow the Six Doors conventions
+- Repos that don't follow the Universal Interface conventions
 - Building or compiling code (this only installs)
 
 ## API Reference
@@ -48,7 +48,7 @@ Reference installer for agent-native software. Scans a repo, detects which "door
 ### CLI
 
 ```bash
-wip-install /path/to/repo           # install all doors
+wip-install /path/to/repo           # install all interfaces
 wip-install org/repo                 # clone from GitHub + install
 wip-install --dry-run /path/to/repo  # detect only, no changes
 wip-install --json /path/to/repo     # JSON output
@@ -57,16 +57,16 @@ wip-install --json /path/to/repo     # JSON output
 ### Module (detect.mjs)
 
 ```javascript
-import { detectDoors, describeDoors, detectDoorsJSON } from './detect.mjs';
+import { detectInterfaces, describeInterfaces, detectInterfacesJSON } from './detect.mjs';
 
-const { doors, pkg } = detectDoors('/path/to/repo');
-console.log(describeDoors(doors));
+const { interfaces, pkg } = detectInterfaces('/path/to/repo');
+console.log(describeInterfaces(interfaces));
 
-const json = detectDoorsJSON('/path/to/repo');
+const json = detectInterfacesJSON('/path/to/repo');
 console.log(JSON.stringify(json, null, 2));
 ```
 
-## Six Doors
+## Universal Interface
 
 See [SPEC.md](https://github.com/wipcomputer/wip-universal-installer/blob/main/SPEC.md) for the full specification.
 

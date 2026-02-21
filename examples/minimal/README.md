@@ -1,6 +1,6 @@
-# Minimal Six-Door Template
+# Minimal Universal Interface Template
 
-The smallest possible agent-native tool. Four files, four doors.
+The smallest possible agent-native tool. Four files, four interfaces.
 
 ```
 core.mjs         ← your logic
@@ -16,5 +16,5 @@ Copy this folder, rename everything, replace `hello()` with your functions.
 
 ```bash
 node cli.mjs world       # Hello, world!
-wip-install --dry-run .  # Detected 4 door(s): cli, module, mcp, skill
+wip-install --dry-run .  # Detected 4 interface(s): cli, module, mcp, skill
 ```
