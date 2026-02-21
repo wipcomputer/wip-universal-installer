@@ -1,5 +1,10 @@
 # Changelog
 
+
+## 2.1.0 (2026-02-21)
+
+Rename Six Doors to Universal Interface. Update all code and docs.
+
 ## 2.0.0 (2026-02-20)
 
 Major refactor. Reframed from "WIP Computer installer" to "the spec for agent-native software."
