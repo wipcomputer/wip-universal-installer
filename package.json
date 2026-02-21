@@ -1,27 +1,36 @@
 {
   "name": "@wipcomputer/universal-installer",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
-  "description": "Universal installer for WIP.computer repos. Detects and installs all available interfaces: CLI, OpenClaw plugin, Claude Code hook, MCP server, skill.",
-  "main": "install.mjs",
+  "description": "The reference installer for agent-native software. Detects doors (CLI, Module, MCP, OpenClaw, Skill, CC Hook) and installs them all.",
+  "main": "detect.mjs",
   "bin": {
     "wip-install": "./install.mjs"
+  },
+  "exports": {
+    ".": "./detect.mjs",
+    "./detect": "./detect.mjs",
+    "./install": "./install.mjs"
   },
   "scripts": {
     "test": "node install.mjs --help"
   },
   "keywords": [
     "installer",
+    "agent-native",
+    "sensor",
+    "actuator",
+    "six-doors",
     "claude-code",
     "openclaw",
     "mcp",
-    "cli",
-    "universal"
+    "cli"
   ],
   "author": "Parker Todd Brooks",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wipcomputer/wip-universal-installer.git"
-  }
+  },
+  "homepage": "https://github.com/wipcomputer/wip-universal-installer"
 }

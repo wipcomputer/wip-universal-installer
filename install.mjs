@@ -1,19 +1,26 @@
 #!/usr/bin/env node
 // wip-universal-installer/install.mjs
-// Universal Installer for WIP.computer repos.
+// Reference installer for agent-native software.
 // Reads a repo, detects available doors, installs them all.
 
 import { execSync } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync, cpSync, mkdirSync } from 'node:fs';
 import { join, basename, resolve } from 'node:path';
+import { detectDoors, describeDoors, detectDoorsJSON } from './detect.mjs';
 
 const OPENCLAW_DIR = join(process.env.HOME, '.openclaw');
 const EXTENSIONS_DIR = join(OPENCLAW_DIR, 'extensions');
 
-function log(msg) { console.log(`  ${msg}`); }
-function ok(msg) { console.log(`  ✓ ${msg}`); }
-function skip(msg) { console.log(`  - ${msg}`); }
-function fail(msg) { console.error(`  ✗ ${msg}`); }
+// Flags
+const args = process.argv.slice(2);
+const DRY_RUN = args.includes('--dry-run');
+const JSON_OUTPUT = args.includes('--json');
+const target = args.find(a => !a.startsWith('--'));
+
+function log(msg) { if (!JSON_OUTPUT) console.log(`  ${msg}`); }
+function ok(msg) { if (!JSON_OUTPUT) console.log(`  ✓ ${msg}`); }
+function skip(msg) { if (!JSON_OUTPUT) console.log(`  - ${msg}`); }
+function fail(msg) { if (!JSON_OUTPUT) console.error(`  ✗ ${msg}`); }
 
 function readJSON(path) {
   try {
@@ -23,65 +30,17 @@ function readJSON(path) {
   }
 }
 
-function detectDoors(repoPath) {
-  const doors = {};
-  const pkg = readJSON(join(repoPath, 'package.json'));
-
-  // CLI door: package.json has bin entry
-  if (pkg?.bin) {
-    doors.cli = { bin: pkg.bin, name: pkg.name };
-  }
-
-  // OpenClaw plugin door: openclaw.plugin.json exists
-  const ocPlugin = join(repoPath, 'openclaw.plugin.json');
-  if (existsSync(ocPlugin)) {
-    doors.openclaw = { config: readJSON(ocPlugin), path: ocPlugin };
-  }
-
-  // Claude Code hook door: check for PreToolUse/Stop hook patterns in package.json
-  if (pkg?.claudeCode?.hook) {
-    doors.claudeCodeHook = pkg.claudeCode.hook;
-  }
-  // Also detect by convention: guard.mjs = PreToolUse hook
-  if (existsSync(join(repoPath, 'guard.mjs'))) {
-    doors.claudeCodeHook = {
-      event: 'PreToolUse',
-      matcher: 'Edit|Write',
-      command: `node "${join(repoPath, 'guard.mjs')}"`,
-      timeout: 5
-    };
-  }
-
-  // MCP server door: .mcp.json or mcp-server.mjs/ts
-  const mcpFiles = ['mcp-server.mjs', 'mcp-server.js', 'dist/mcp-server.js'];
-  for (const f of mcpFiles) {
-    if (existsSync(join(repoPath, f))) {
-      doors.mcp = { file: f, name: pkg?.name || basename(repoPath) };
-      break;
-    }
-  }
-
-  // Skill door: SKILL.md exists
-  if (existsSync(join(repoPath, 'SKILL.md'))) {
-    doors.skill = { path: join(repoPath, 'SKILL.md') };
-  }
-
-  // Module door: package.json has main or exports
-  if (pkg?.main || pkg?.exports) {
-    doors.module = { main: pkg.main || pkg.exports };
-  }
-
-  return { doors, pkg };
-}
-
 function installCLI(repoPath, door) {
+  if (DRY_RUN) {
+    ok(`CLI: would install globally (dry run)`);
+    return true;
+  }
   try {
     execSync('npm install -g .', { cwd: repoPath, stdio: 'pipe' });
     const binNames = typeof door.bin === 'string' ? [basename(repoPath)] : Object.keys(door.bin);
     ok(`CLI: ${binNames.join(', ')} installed globally`);
     return true;
   } catch (e) {
-    // Fallback: link instead of install
     try {
       execSync('npm link', { cwd: repoPath, stdio: 'pipe' });
       ok(`CLI: linked globally via npm link`);
@@ -97,6 +56,11 @@ function installOpenClaw(repoPath, door) {
   const name = door.config?.name || basename(repoPath);
   const dest = join(EXTENSIONS_DIR, name);
 
+  if (DRY_RUN) {
+    ok(`OpenClaw: would copy to ${dest} (dry run)`);
+    return true;
+  }
+
   if (existsSync(dest)) {
     skip(`OpenClaw: ${name} already installed at ${dest}`);
     return true;
@@ -107,7 +71,6 @@ function installOpenClaw(repoPath, door) {
     cpSync(repoPath, dest, { recursive: true, filter: (src) => !src.includes('.git') });
     ok(`OpenClaw: copied to ${dest}`);
 
-    // Install deps if needed
     if (existsSync(join(dest, 'package.json'))) {
       try {
         execSync('npm install --omit=dev', { cwd: dest, stdio: 'pipe' });
@@ -132,12 +95,16 @@ function installClaudeCodeHook(repoPath, door) {
     return false;
   }
 
+  if (DRY_RUN) {
+    ok(`Claude Code: would add ${door.event || 'PreToolUse'} hook (dry run)`);
+    return true;
+  }
+
   if (!settings.hooks) settings.hooks = {};
   const event = door.event || 'PreToolUse';
 
   if (!settings.hooks[event]) settings.hooks[event] = [];
 
-  // Check if already installed
   const hookCommand = door.command || `node "${join(repoPath, 'guard.mjs')}"`;
   const existing = settings.hooks[event].some(entry =>
     entry.hooks?.some(h => h.command === hookCommand)
@@ -168,25 +135,26 @@ function installClaudeCodeHook(repoPath, door) {
 }
 
 async function main() {
-  const target = process.argv[2];
-
-  if (!target || target === '--help') {
+  if (!target || target === '--help' || target === '-h') {
     console.log('');
-    console.log('  Universal Installer');
-    console.log('  Detects and installs all available interfaces from a WIP.computer repo.');
+    console.log('  wip-install ... the reference installer for agent-native software');
     console.log('');
     console.log('  Usage:');
     console.log('    wip-install /path/to/repo');
-    console.log('    wip-install https://github.com/wipcomputer/repo-name');
-    console.log('    wip-install wipcomputer/repo-name');
+    console.log('    wip-install https://github.com/org/repo');
+    console.log('    wip-install org/repo');
     console.log('');
-    console.log('  What it detects:');
+    console.log('  Flags:');
+    console.log('    --dry-run   Detect doors without installing anything');
+    console.log('    --json      Output detection results as JSON');
+    console.log('');
+    console.log('  Doors it detects:');
     console.log('    CLI        ... package.json bin entry -> npm install -g');
+    console.log('    Module     ... ESM main/exports -> importable');
+    console.log('    MCP Server ... mcp-server.mjs -> config for .mcp.json');
     console.log('    OpenClaw   ... openclaw.plugin.json -> copies to extensions/');
-    console.log('    CC Hook    ... guard.mjs or claudeCode.hook -> adds to settings.json');
-    console.log('    MCP Server ... mcp-server.mjs -> prints config for .mcp.json');
-    console.log('    Skill      ... SKILL.md -> available for OpenClaw agents');
-    console.log('    Module     ... ESM exports -> importable by other tools');
+    console.log('    Skill      ... SKILL.md -> agent instructions');
+    console.log('    CC Hook    ... guard.mjs or claudeCode.hook -> settings.json');
     console.log('');
     process.exit(0);
   }
@@ -194,15 +162,14 @@ async function main() {
   // Resolve target: GitHub URL, org/repo shorthand, or local path
   let repoPath;
 
-  if (target.startsWith('http') || target.startsWith('git@') || target.match(/^[\w-]+\/[\w-]+$/)) {
-    // Clone from GitHub
-    const url = target.match(/^[\w-]+\/[\w-]+$/)
+  if (target.startsWith('http') || target.startsWith('git@') || target.match(/^[\w-]+\/[\w.-]+$/)) {
+    const url = target.match(/^[\w-]+\/[\w.-]+$/)
       ? `https://github.com/${target}.git`
       : target;
     const repoName = basename(url).replace('.git', '');
     repoPath = join('/tmp', `wip-install-${repoName}`);
 
-    console.log('');
+    log('');
     log(`Cloning ${url}...`);
     try {
       if (existsSync(repoPath)) {
@@ -222,12 +189,15 @@ async function main() {
     }
   }
 
-  // Detect doors
-  console.log('');
-  const repoName = basename(repoPath);
-  console.log(`  Installing: ${repoName}`);
-  console.log(`  ${'─'.repeat(40)}`);
+  // JSON mode: detect and output
+  if (JSON_OUTPUT) {
+    const result = detectDoorsJSON(repoPath);
+    console.log(JSON.stringify(result, null, 2));
+    if (DRY_RUN) process.exit(0);
+    // If not dry run, continue with install but suppress output
+  }
 
+  // Detect doors
   const { doors, pkg } = detectDoors(repoPath);
   const doorNames = Object.keys(doors);
 
@@ -236,8 +206,23 @@ async function main() {
     process.exit(0);
   }
 
-  log(`Detected ${doorNames.length} door(s): ${doorNames.join(', ')}`);
-  console.log('');
+  if (!JSON_OUTPUT) {
+    console.log('');
+    const repoName = basename(repoPath);
+    console.log(`  Installing: ${repoName}${DRY_RUN ? ' (dry run)' : ''}`);
+    console.log(`  ${'─'.repeat(40)}`);
+    log(`Detected ${doorNames.length} door(s): ${doorNames.join(', ')}`);
+    console.log('');
+  }
+
+  if (DRY_RUN && !JSON_OUTPUT) {
+    // In dry run, show what would happen
+    console.log(describeDoors(doors));
+    console.log('');
+    console.log('  Dry run complete. No changes made.');
+    console.log('');
+    process.exit(0);
+  }
 
   // Install each door
   let installed = 0;
@@ -258,15 +243,17 @@ async function main() {
   }
 
   if (doors.mcp) {
-    console.log('');
-    log(`MCP Server detected: ${doors.mcp.file}`);
-    log(`Add to .mcp.json:`);
-    console.log(JSON.stringify({
-      [doors.mcp.name]: {
-        command: 'node',
-        args: [join(repoPath, doors.mcp.file)]
-      }
-    }, null, 2));
+    if (!JSON_OUTPUT) {
+      console.log('');
+      log(`MCP Server detected: ${doors.mcp.file}`);
+      log(`Add to .mcp.json:`);
+      console.log(JSON.stringify({
+        [doors.mcp.name]: {
+          command: 'node',
+          args: [join(repoPath, doors.mcp.file)]
+        }
+      }, null, 2));
+    }
     installed++;
   }
 
@@ -280,9 +267,11 @@ async function main() {
     installed++;
   }
 
-  console.log('');
-  console.log(`  Done. ${installed} door(s) processed.`);
-  console.log('');
+  if (!JSON_OUTPUT) {
+    console.log('');
+    console.log(`  Done. ${installed} door(s) processed.`);
+    console.log('');
+  }
 }
 
 main().catch(e => {
