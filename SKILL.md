@@ -1,7 +1,7 @@
 ---
 name: wip-universal-installer
 version: 2.1.4
-description: Reference installer for agent-native software. Detects and installs all interfaces from any repo.
+description: The Universal Interface specification for agent-native software. Teaches your AI how to build repos with every interface.
 homepage: https://github.com/wipcomputer/wip-universal-installer
 metadata:
   category: dev-tools
