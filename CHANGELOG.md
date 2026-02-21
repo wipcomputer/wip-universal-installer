@@ -3,6 +3,11 @@
 
 
 
+
+## 2.1.3 (2026-02-21)
+
+Fix npm bin entry: rename install.mjs to install.js so npx wip-install works globally
+
 ## 2.1.2 (2026-02-21)
 
 Move detailed content to REFERENCE.md. README keeps Problem, Karpathy, Install prompt.
