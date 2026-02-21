@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 // wip-universal-installer/install.mjs
 // Reference installer for agent-native software.
-// Reads a repo, detects available doors, installs them all.
+// Reads a repo, detects available interfaces, installs them all.
 
 import { execSync } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync, cpSync, mkdirSync } from 'node:fs';
 import { join, basename, resolve } from 'node:path';
-import { detectDoors, describeDoors, detectDoorsJSON } from './detect.mjs';
+import { detectInterfaces, describeInterfaces, detectInterfacesJSON } from './detect.mjs';
 
 const OPENCLAW_DIR = join(process.env.HOME, '.openclaw');
 const EXTENSIONS_DIR = join(OPENCLAW_DIR, 'extensions');
@@ -145,10 +145,10 @@ async function main() {
     console.log('    wip-install org/repo');
     console.log('');
     console.log('  Flags:');
-    console.log('    --dry-run   Detect doors without installing anything');
+    console.log('    --dry-run   Detect interfaces without installing anything');
     console.log('    --json      Output detection results as JSON');
     console.log('');
-    console.log('  Doors it detects:');
+    console.log('  Interfaces it detects:');
     console.log('    CLI        ... package.json bin entry -> npm install -g');
     console.log('    Module     ... ESM main/exports -> importable');
     console.log('    MCP Server ... mcp-server.mjs -> config for .mcp.json');
@@ -191,17 +191,17 @@ async function main() {
 
   // JSON mode: detect and output
   if (JSON_OUTPUT) {
-    const result = detectDoorsJSON(repoPath);
+    const result = detectInterfacesJSON(repoPath);
     console.log(JSON.stringify(result, null, 2));
     if (DRY_RUN) process.exit(0);
     // If not dry run, continue with install but suppress output
   }
 
-  // Detect doors
-  const { doors, pkg } = detectDoors(repoPath);
-  const doorNames = Object.keys(doors);
+  // Detect interfaces
+  const { interfaces, pkg } = detectInterfaces(repoPath);
+  const ifaceNames = Object.keys(interfaces);
 
-  if (doorNames.length === 0) {
+  if (ifaceNames.length === 0) {
     skip('No installable interfaces detected.');
     process.exit(0);
   }
@@ -211,65 +211,65 @@ async function main() {
     const repoName = basename(repoPath);
     console.log(`  Installing: ${repoName}${DRY_RUN ? ' (dry run)' : ''}`);
     console.log(`  ${'─'.repeat(40)}`);
-    log(`Detected ${doorNames.length} door(s): ${doorNames.join(', ')}`);
+    log(`Detected ${ifaceNames.length} interface(s): ${ifaceNames.join(', ')}`);
     console.log('');
   }
 
   if (DRY_RUN && !JSON_OUTPUT) {
     // In dry run, show what would happen
-    console.log(describeDoors(doors));
+    console.log(describeInterfaces(interfaces));
     console.log('');
     console.log('  Dry run complete. No changes made.');
     console.log('');
     process.exit(0);
   }
 
-  // Install each door
+  // Install each interface
   let installed = 0;
 
-  if (doors.cli) {
-    installCLI(repoPath, doors.cli);
+  if (interfaces.cli) {
+    installCLI(repoPath, interfaces.cli);
     installed++;
   }
 
-  if (doors.openclaw) {
-    installOpenClaw(repoPath, doors.openclaw);
+  if (interfaces.openclaw) {
+    installOpenClaw(repoPath, interfaces.openclaw);
     installed++;
   }
 
-  if (doors.claudeCodeHook) {
-    installClaudeCodeHook(repoPath, doors.claudeCodeHook);
+  if (interfaces.claudeCodeHook) {
+    installClaudeCodeHook(repoPath, interfaces.claudeCodeHook);
     installed++;
   }
 
-  if (doors.mcp) {
+  if (interfaces.mcp) {
     if (!JSON_OUTPUT) {
       console.log('');
-      log(`MCP Server detected: ${doors.mcp.file}`);
+      log(`MCP Server detected: ${interfaces.mcp.file}`);
       log(`Add to .mcp.json:`);
       console.log(JSON.stringify({
-        [doors.mcp.name]: {
+        [interfaces.mcp.name]: {
           command: 'node',
-          args: [join(repoPath, doors.mcp.file)]
+          args: [join(repoPath, interfaces.mcp.file)]
         }
       }, null, 2));
     }
     installed++;
   }
 
-  if (doors.skill) {
-    ok(`Skill: SKILL.md available at ${doors.skill.path}`);
+  if (interfaces.skill) {
+    ok(`Skill: SKILL.md available at ${interfaces.skill.path}`);
     installed++;
   }
 
-  if (doors.module) {
-    ok(`Module: import from "${doors.module.main}"`);
+  if (interfaces.module) {
+    ok(`Module: import from "${interfaces.module.main}"`);
     installed++;
   }
 
   if (!JSON_OUTPUT) {
     console.log('');
-    console.log(`  Done. ${installed} door(s) processed.`);
+    console.log(`  Done. ${installed} interface(s) processed.`);
     console.log('');
   }
 }
