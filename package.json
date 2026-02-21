@@ -5,15 +5,15 @@
   "description": "The reference installer for agent-native software. Detects interfaces (CLI, Module, MCP, OpenClaw, Skill, CC Hook) and installs them all.",
   "main": "detect.mjs",
   "bin": {
-    "wip-install": "./install.mjs"
+    "wip-install": "install.js"
   },
   "exports": {
     ".": "./detect.mjs",
     "./detect": "./detect.mjs",
-    "./install": "./install.mjs"
+    "./install": "./install.js"
   },
   "scripts": {
-    "test": "node install.mjs --help"
+    "test": "node install.js --help"
   },
   "keywords": [
     "installer",

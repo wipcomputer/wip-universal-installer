@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// wip-universal-installer/install.mjs
+// wip-universal-installer/install.js
 // Reference installer for agent-native software.
 // Reads a repo, detects available interfaces, installs them all.
 
