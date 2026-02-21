@@ -1,6 +1,6 @@
 {
   "name": "@wipcomputer/universal-installer",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "type": "module",
   "description": "The reference installer for agent-native software. Detects interfaces (CLI, Module, MCP, OpenClaw, Skill, CC Hook) and installs them all.",
   "main": "detect.mjs",

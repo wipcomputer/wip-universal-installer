@@ -1,6 +1,11 @@
 # Changelog
 
 
+
+## 2.1.1 (2026-02-21)
+
+Add Universal Interface badges, agent-driven install prompt, fix description
+
 ## 2.1.0 (2026-02-21)
 
 Rename Six Doors to Universal Interface. Update all code and docs.
