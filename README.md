@@ -1,4 +1,7 @@
 ###### WIP Computer
+
+[![npm](https://img.shields.io/npm/v/@wipcomputer/universal-installer)](https://www.npmjs.com/package/@wipcomputer/universal-installer) [![CLI / TUI](https://img.shields.io/badge/interface-CLI_/_TUI-black)](https://github.com/wipcomputer/wip-universal-installer/blob/main/install.mjs) [![OpenClaw Skill](https://img.shields.io/badge/interface-OpenClaw_Skill-black)](https://clawhub.ai/parkertoddbrooks/wip-universal-installer) [![Claude Code Skill](https://img.shields.io/badge/interface-Claude_Code_Skill-black)](https://github.com/wipcomputer/wip-universal-installer/blob/main/SKILL.md) [![Universal Interface Spec](https://img.shields.io/badge/Universal_Interface_Spec-black?style=flat&color=black)](https://github.com/wipcomputer/wip-universal-installer/blob/main/SPEC.md)
+
 # Universal Installer
 
 Here's how to build software in 2026.
@@ -121,16 +124,26 @@ wip-install --json /path/to/repo
 
 ## Install
 
-```bash
-npm install -g @wipcomputer/universal-installer
+Open your AI coding tool and say:
+
+```
+Read the SPEC.md and SKILL.md at github.com/wipcomputer/wip-universal-installer.
+Then explain to me:
+1. What is this tool?
+2. What does it do?
+3. What would it change or fix in our current system?
+
+Then ask me:
+- Do you have more questions?
+- Do you want to integrate it into our system?
+- Do you want to clone it (use as-is) or fork it (so you can contribute back if you find bugs)?
 ```
 
-Or from source:
+Your agent will read the repo, explain the tool, and walk you through integration interactively.
 
-```bash
-git clone https://github.com/wipcomputer/wip-universal-installer.git
-cd wip-universal-installer && npm link
-```
+Also see **[wip-release](https://github.com/wipcomputer/wip-release)** ... one-command release pipeline for agent-native software.
+
+See [SPEC.md](SPEC.md) for the full Universal Interface specification.
 
 ## Real Examples
 
