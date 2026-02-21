@@ -5,6 +5,11 @@
 
 
 
+
+## 2.1.5 (2026-02-21)
+
+Update description to reflect Universal Interface spec purpose
+
 ## 2.1.4 (2026-02-21)
 
 Add one-liner to README: what it does and teaches your AI too
