@@ -2,6 +2,11 @@
 
 
 
+
+## 2.1.2 (2026-02-21)
+
+Move detailed content to REFERENCE.md. README keeps Problem, Karpathy, Install prompt.
+
 ## 2.1.1 (2026-02-21)
 
 Add Universal Interface badges, agent-driven install prompt, fix description

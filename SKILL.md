@@ -1,6 +1,6 @@
 ---
 name: wip-universal-installer
-version: 2.1.1
+version: 2.1.2
 description: Reference installer for agent-native software. Detects and installs all interfaces from any repo.
 homepage: https://github.com/wipcomputer/wip-universal-installer
 metadata:
