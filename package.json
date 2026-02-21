@@ -2,7 +2,7 @@
   "name": "@wipcomputer/universal-installer",
   "version": "2.1.0",
   "type": "module",
-  "description": "The reference installer for agent-native software. Detects doors (CLI, Module, MCP, OpenClaw, Skill, CC Hook) and installs them all.",
+  "description": "The reference installer for agent-native software. Detects interfaces (CLI, Module, MCP, OpenClaw, Skill, CC Hook) and installs them all.",
   "main": "detect.mjs",
   "bin": {
     "wip-install": "./install.mjs"
@@ -20,7 +20,7 @@
     "agent-native",
     "sensor",
     "actuator",
-    "six-doors",
+    "universal-interface",
     "claude-code",
     "openclaw",
     "mcp",
