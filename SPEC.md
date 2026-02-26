@@ -134,11 +134,30 @@ your-tool/
   SKILL.md            agent instructions with YAML frontmatter
   package.json         name, bin, main, exports, type: module
   README.md            human documentation
+  ai/                  development process (plans, todos, notes)
 ```
 
 Not every tool needs all six interfaces. Build the ones that make sense.
 
 The minimum viable agent-native tool has two interfaces: **Module** (importable) and **Skill** (agent instructions). Add CLI for humans. Add MCP for agents that speak MCP. Add OpenClaw/CC Hook for specific platforms.
+
+## The `ai/` Folder
+
+Every repo should have an `ai/` folder. This is where agents and humans collaborate on the project ... plans, todos, dev updates, research notes, conversations.
+
+```
+ai/
+  plan/              architecture plans, roadmaps
+  dev-updates/       what was built, session logs
+  todos/
+    PUNCHLIST.md     blockers to ship
+    inboxes/         per-agent action items
+  notes/             research, references, raw conversation logs
+```
+
+The `ai/` folder is the development process. It is not part of the published product.
+
+**Public/private split:** If a repo is public, the `ai/` folder should not ship. The recommended pattern is to maintain a private working repo (with `ai/`) and a public repo (everything except `ai/`). The public repo has everything an LLM or human needs to understand and use the tool. The `ai/` folder is operational context for the team building it.
 
 ## The Reference Installer
 
